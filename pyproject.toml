@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spark-risk"
+version = "1.0.0"
+description = "Spark - abuse-ring sentinel and merchant risk manager (Track 02, phase 1)"
+requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["spark", "ml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "slow: needs the real dataset or trained artifacts",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::FutureWarning",
+]

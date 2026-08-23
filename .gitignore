@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# Data and generated artefacts
+data/raw/*.zip
+data/processed/*.parquet
+data/uploads/
+data/user_models/
+data/spark.db
+*.db
+reports/decisions.jsonl
+
+# Secrets. Never commit these, and never copy their contents anywhere.
+.env
+.env.local
+.supabase-keys/
+.cloudflare-keys/
+.aws-keys/
+*.pem
+
+# Frontend
+web/node_modules/
+web/dist/
+web/.vite/
+web/docs-dist/
+*.tsbuildinfo
+
+# Runtime data, wherever it lands
+api/data/
