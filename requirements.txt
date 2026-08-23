@@ -1,0 +1,21 @@
+# Spark - Phase 1 (data + CLI + ML)
+#
+# Versions are the ones the reported results were produced with. Nothing here
+# needs a GPU: the graph model runs full-batch on CPU with torch sparse ops,
+# which is why DGL is deliberately absent.
+
+numpy==2.3.5
+pandas==2.3.3
+scipy==1.17.1
+scikit-learn==1.8.0
+lightgbm==4.7.0
+networkx==3.6.1
+shap==0.52.0
+joblib==1.5.3
+pyarrow==22.0.0
+
+# CPU build is sufficient; install from the CPU index if wheels are large:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+torch==2.9.1
+
+pytest==9.1.1
