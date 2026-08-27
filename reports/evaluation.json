@@ -1,0 +1,780 @@
+{
+  "model_version": "spark-hybrid-v1",
+  "fusion_weights": {
+    "tabular": 0.2667849834657046,
+    "graph": 0.5609896161033958,
+    "behavioral": 0.000395769000188145,
+    "velocity": 0.17182963143071142
+  },
+  "label_lag_steps": 2000,
+  "thresholds": {
+    "balanced": {
+      "name": "balanced",
+      "review_threshold": 0.07712643678160919,
+      "block_threshold": 0.14022988505747125,
+      "selected_on": "validation",
+      "rationale": "minimises expected cost under the configured cost model"
+    },
+    "high_precision": {
+      "name": "high_precision",
+      "review_threshold": 0.28243243243243243,
+      "block_threshold": 0.5135135135135135,
+      "selected_on": "validation",
+      "rationale": "precision target 0.90 unreachable on validation with at least 100 alerts; using the best supported point (precision 0.7119)"
+    },
+    "high_recall": {
+      "name": "high_recall",
+      "review_threshold": 0.07712643678160919,
+      "block_threshold": 0.14022988505747125,
+      "selected_on": "validation",
+      "rationale": "cheapest point with recall >= 0.80"
+    }
+  },
+  "ranking_by_split": [
+    {
+      "split": "train",
+      "n": 20806,
+      "n_positive": 2573,
+      "base_rate": 0.12366625012015765,
+      "pr_auc": 0.6359334840282684,
+      "roc_auc": 0.9395237840767785,
+      "brier": 0.0669654267917292,
+      "lift_over_base": 5.142336598792131
+    },
+    {
+      "split": "val",
+      "n": 3737,
+      "n_positive": 445,
+      "base_rate": 0.11907947551511908,
+      "pr_auc": 0.5213193065504781,
+      "roc_auc": 0.8823074665174,
+      "brier": 0.0735643698516118,
+      "lift_over_base": 4.3779106709643525
+    },
+    {
+      "split": "test",
+      "n": 5100,
+      "n_positive": 2238,
+      "base_rate": 0.4388235294117647,
+      "pr_auc": 0.91512587436253,
+      "roc_auc": 0.9473287613916039,
+      "brier": 0.18335021460724577,
+      "lift_over_base": 2.085407488493701
+    }
+  ],
+  "ranking_by_channel": [
+    {
+      "channel": "tabular",
+      "train_pr_auc": 0.9139649227423334,
+      "val_pr_auc": 0.45780006756999736,
+      "test_pr_auc": 0.7041623331836958
+    },
+    {
+      "channel": "graph",
+      "train_pr_auc": 0.5036162891566611,
+      "val_pr_auc": 0.5194791952273637,
+      "test_pr_auc": 0.9379834445497469
+    },
+    {
+      "channel": "behavioral",
+      "train_pr_auc": 0.17314674092439009,
+      "val_pr_auc": 0.2028076032008817,
+      "test_pr_auc": 0.7397737322700404
+    },
+    {
+      "channel": "velocity",
+      "train_pr_auc": 0.1842827367013041,
+      "val_pr_auc": 0.18705999062677242,
+      "test_pr_auc": 0.8617927019262681
+    },
+    {
+      "channel": "fused",
+      "train_pr_auc": 0.6359334840282684,
+      "val_pr_auc": 0.5213193065504781,
+      "test_pr_auc": 0.91512587436253
+    }
+  ],
+  "operating_points_test": [
+    {
+      "mode": "balanced",
+      "selected_on": "validation",
+      "rationale": "minimises expected cost under the configured cost model",
+      "review_threshold": 0.07712643678160919,
+      "block_threshold": 0.14022988505747125,
+      "threshold": 0.14022988505747125,
+      "tp": 2218,
+      "fp": 1303,
+      "tn": 1559,
+      "fn": 20,
+      "precision": 0.6299346776483954,
+      "recall": 0.9910634495084897,
+      "f1": 0.7702726167737454,
+      "fpr": 0.4552760307477289,
+      "fnr": 0.008936550491510277,
+      "alert_rate": 0.6903921568627451,
+      "n_predicted_positive": 3521,
+      "expected_cost": 34468.07,
+      "cost_per_1k": 6758.445098039216,
+      "prevented_loss": 54170.310000000005,
+      "residual_loss": 1608.0700000000002,
+      "baseline_loss_no_system": 55778.380000000005,
+      "net_benefit": 21310.310000000005,
+      "n_approve": 1484,
+      "n_review": 95,
+      "n_block": 3521,
+      "transfers": true,
+      "transfer_note": ""
+    },
+    {
+      "mode": "high_precision",
+      "selected_on": "validation",
+      "rationale": "precision target 0.90 unreachable on validation with at least 100 alerts; using the best supported point (precision 0.7119)",
+      "review_threshold": 0.28243243243243243,
+      "block_threshold": 0.5135135135135135,
+      "threshold": 0.5135135135135135,
+      "tp": 1,
+      "fp": 2,
+      "tn": 2860,
+      "fn": 2237,
+      "precision": 0.3333333333333333,
+      "recall": 0.00044682752457551384,
+      "f1": 0.000892458723784025,
+      "fpr": 0.0006988120195667365,
+      "fnr": 0.9995531724754245,
+      "alert_rate": 0.000588235294117647,
+      "n_predicted_positive": 3,
+      "expected_cost": 25460.471999999998,
+      "cost_per_1k": 4992.249411764705,
+      "prevented_loss": 39694.90800000001,
+      "residual_loss": 16083.471999999998,
+      "baseline_loss_no_system": 55778.380000000005,
+      "net_benefit": 30317.908000000007,
+      "n_approve": 1988,
+      "n_review": 3109,
+      "n_block": 3,
+      "transfers": false,
+      "transfer_note": "threshold 0.5135 sits above almost the entire test score range; only 3 of 5100 transactions reach it, so this operating point does not transfer across the observed score drift"
+    },
+    {
+      "mode": "high_recall",
+      "selected_on": "validation",
+      "rationale": "cheapest point with recall >= 0.80",
+      "review_threshold": 0.07712643678160919,
+      "block_threshold": 0.14022988505747125,
+      "threshold": 0.14022988505747125,
+      "tp": 2218,
+      "fp": 1303,
+      "tn": 1559,
+      "fn": 20,
+      "precision": 0.6299346776483954,
+      "recall": 0.9910634495084897,
+      "f1": 0.7702726167737454,
+      "fpr": 0.4552760307477289,
+      "fnr": 0.008936550491510277,
+      "alert_rate": 0.6903921568627451,
+      "n_predicted_positive": 3521,
+      "expected_cost": 34468.07,
+      "cost_per_1k": 6758.445098039216,
+      "prevented_loss": 54170.310000000005,
+      "residual_loss": 1608.0700000000002,
+      "baseline_loss_no_system": 55778.380000000005,
+      "net_benefit": 21310.310000000005,
+      "n_approve": 1484,
+      "n_review": 95,
+      "n_block": 3521,
+      "transfers": true,
+      "transfer_note": ""
+    }
+  ],
+  "cost_sweep_test": [
+    {
+      "block_threshold": 0.3469387755102041,
+      "review_threshold": 0.19081632653061226,
+      "precision": 0.6890263757733637,
+      "recall": 0.9454870420017873,
+      "f1": 0.7971369372763232,
+      "fpr": 0.3336827393431167,
+      "n_block": 3071,
+      "n_review": 132,
+      "expected_cost": 29343.826,
+      "cost_per_1k": 5753.69137254902,
+      "prevented_loss": 50705.554000000004,
+      "net_benefit": 26434.554000000004
+    },
+    {
+      "block_threshold": 0.3490531180682464,
+      "review_threshold": 0.19197921493753553,
+      "precision": 0.8647610921501706,
+      "recall": 0.9057193923145666,
+      "f1": 0.8847664775207332,
+      "fpr": 0.11076170510132774,
+      "n_block": 2344,
+      "n_review": 859,
+      "expected_cost": 16779.196,
+      "cost_per_1k": 3290.038431372549,
+      "prevented_loss": 49501.18400000001,
+      "net_benefit": 38999.18400000001
+    },
+    {
+      "block_threshold": 0.37823058492826933,
+      "review_threshold": 0.20802682171054815,
+      "precision": 0.8740293356341674,
+      "recall": 0.9052725647899911,
+      "f1": 0.8893766461808604,
+      "fpr": 0.10202655485674354,
+      "n_block": 2318,
+      "n_review": 885,
+      "expected_cost": 16247.444,
+      "cost_per_1k": 3185.773333333333,
+      "prevented_loss": 49485.936,
+      "net_benefit": 39530.936
+    },
+    {
+      "block_threshold": 0.3870967741935484,
+      "review_threshold": 0.21290322580645163,
+      "precision": 0.8774361195322651,
+      "recall": 0.9052725647899911,
+      "f1": 0.8911370134154388,
+      "fpr": 0.09888190076869321,
+      "n_block": 2309,
+      "n_review": 894,
+      "expected_cost": 16049.444,
+      "cost_per_1k": 3146.9498039215687,
+      "prevented_loss": 49485.936,
+      "net_benefit": 39728.936
+    },
+    {
+      "block_threshold": 0.4,
+      "review_threshold": 0.22000000000000003,
+      "precision": 0.9501607717041801,
+      "recall": 0.792225201072386,
+      "f1": 0.8640350877192983,
+      "fpr": 0.03249475890985325,
+      "n_block": 1866,
+      "n_review": 1279,
+      "expected_cost": 14122.602,
+      "cost_per_1k": 2769.1376470588234,
+      "prevented_loss": 47817.778000000006,
+      "net_benefit": 41655.778000000006
+    },
+    {
+      "block_threshold": 0.4316546762589928,
+      "review_threshold": 0.23741007194244604,
+      "precision": 0.9544419134396356,
+      "recall": 0.7488829311885612,
+      "f1": 0.8392588883324987,
+      "fpr": 0.027952480782669462,
+      "n_block": 1756,
+      "n_review": 1389,
+      "expected_cost": 14528.086,
+      "cost_per_1k": 2848.64431372549,
+      "prevented_loss": 47417.29400000001,
+      "net_benefit": 41250.29400000001
+    },
+    {
+      "block_threshold": 0.43220042143709886,
+      "review_threshold": 0.2377102317904044,
+      "precision": 0.5862068965517241,
+      "recall": 0.007596067917783735,
+      "f1": 0.014997794441993822,
+      "fpr": 0.0041928721174004195,
+      "n_block": 29,
+      "n_review": 3116,
+      "expected_cost": 24977.811999999998,
+      "cost_per_1k": 4897.610196078431,
+      "prevented_loss": 40448.56800000001,
+      "net_benefit": 30800.568000000007
+    },
+    {
+      "block_threshold": 0.5060878378378367,
+      "review_threshold": 0.27834831081081024,
+      "precision": 0.3333333333333333,
+      "recall": 0.00044682752457551384,
+      "f1": 0.000892458723784025,
+      "fpr": 0.0006988120195667365,
+      "n_block": 3,
+      "n_review": 3109,
+      "expected_cost": 25460.471999999998,
+      "cost_per_1k": 4992.249411764705,
+      "prevented_loss": 39694.90800000001,
+      "net_benefit": 30317.908000000007
+    }
+  ],
+  "calibration_test": [
+    {
+      "bin": "[0.0, 0.1)",
+      "n": 1484,
+      "mean_predicted": 0.017383042786876277,
+      "observed_rate": 0.009433962264150943,
+      "gap": 0.007949080522725334
+    },
+    {
+      "bin": "[0.1, 0.2)",
+      "n": 413,
+      "mean_predicted": 0.1344404818229649,
+      "observed_rate": 0.16464891041162227,
+      "gap": -0.030208428588657382
+    },
+    {
+      "bin": "[0.2, 0.3)",
+      "n": 91,
+      "mean_predicted": 0.23174546835524895,
+      "observed_rate": 0.3076923076923077,
+      "gap": -0.07594683933705876
+    },
+    {
+      "bin": "[0.3, 0.4)",
+      "n": 1246,
+      "mean_predicted": 0.3608939951481338,
+      "observed_rate": 0.28491171749598715,
+      "gap": 0.07598227765214666
+    },
+    {
+      "bin": "[0.4, 0.5)",
+      "n": 1847,
+      "mean_predicted": 0.429791889512845,
+      "observed_rate": 0.9534380075798592,
+      "gap": -0.5236461180670142
+    },
+    {
+      "bin": "[0.5, 0.6)",
+      "n": 19,
+      "mean_predicted": 0.5021337126600285,
+      "observed_rate": 0.631578947368421,
+      "gap": -0.12944523470839253
+    }
+  ],
+  "score_drift": {
+    "reference": "validation",
+    "current": "test",
+    "psi": 0.8553,
+    "status": "SHIFTED",
+    "implication": "score distribution has shifted a lot. The calibrator fitted on validation will understate risk on test, so recalibration is indicated before the thresholds are trusted",
+    "reference_mean": 0.1191,
+    "current_mean": 0.2658,
+    "reference_max": 1.0,
+    "current_max": 0.5135,
+    "reference_n": 3737,
+    "current_n": 5100
+  },
+  "stress_slices_test": [
+    {
+      "slice": "cold_entities",
+      "n": 341,
+      "n_positive": 78,
+      "base_rate": 0.2287390029325513,
+      "pr_auc": 0.6091376573802794,
+      "roc_auc": 0.8005752169250269,
+      "brier": 0.14739814542872748,
+      "threshold": 0.14022988505747125,
+      "tp": 73,
+      "fp": 180,
+      "tn": 83,
+      "fn": 5,
+      "precision": 0.2885375494071146,
+      "recall": 0.9358974358974359,
+      "f1": 0.4410876132930514,
+      "fpr": 0.6844106463878327,
+      "fnr": 0.0641025641025641,
+      "alert_rate": 0.7419354838709677,
+      "n_predicted_positive": 253
+    },
+    {
+      "slice": "warm_entities",
+      "n": 4759,
+      "n_positive": 2160,
+      "base_rate": 0.45387686488758144,
+      "pr_auc": 0.9247831053779106,
+      "roc_auc": 0.9522444529947416,
+      "brier": 0.18592631370156698,
+      "threshold": 0.14022988505747125,
+      "tp": 2145,
+      "fp": 1123,
+      "tn": 1476,
+      "fn": 15,
+      "precision": 0.6563647490820074,
+      "recall": 0.9930555555555556,
+      "f1": 0.7903463522476051,
+      "fpr": 0.43208926510196227,
+      "fnr": 0.006944444444444444,
+      "alert_rate": 0.6866988863206556,
+      "n_predicted_positive": 3268
+    }
+  ],
+  "rings": {
+    "n_candidate_rings": 940,
+    "threshold_selected_on_validation": 0.7,
+    "validation_sweep": [
+      {
+        "threshold": 0.4,
+        "rings": 206,
+        "confirmed": 2855,
+        "fraud": 341,
+        "precision": 0.11943957968476357,
+        "recall": 0.7662921348314606,
+        "f1": 0.20666666666666667
+      },
+      {
+        "threshold": 0.425,
+        "rings": 192,
+        "confirmed": 2728,
+        "fraud": 307,
+        "precision": 0.1125366568914956,
+        "recall": 0.6898876404494382,
+        "f1": 0.19350772139930666
+      },
+      {
+        "threshold": 0.45,
+        "rings": 167,
+        "confirmed": 1810,
+        "fraud": 220,
+        "precision": 0.12154696132596685,
+        "recall": 0.4943820224719101,
+        "f1": 0.19512195121951217
+      },
+      {
+        "threshold": 0.475,
+        "rings": 140,
+        "confirmed": 1705,
+        "fraud": 217,
+        "precision": 0.12727272727272726,
+        "recall": 0.48764044943820223,
+        "f1": 0.20186046511627906
+      },
+      {
+        "threshold": 0.5,
+        "rings": 116,
+        "confirmed": 259,
+        "fraud": 104,
+        "precision": 0.4015444015444015,
+        "recall": 0.23370786516853934,
+        "f1": 0.29545454545454547
+      },
+      {
+        "threshold": 0.525,
+        "rings": 92,
+        "confirmed": 236,
+        "fraud": 102,
+        "precision": 0.4322033898305085,
+        "recall": 0.2292134831460674,
+        "f1": 0.2995594713656387
+      },
+      {
+        "threshold": 0.55,
+        "rings": 67,
+        "confirmed": 186,
+        "fraud": 95,
+        "precision": 0.510752688172043,
+        "recall": 0.21348314606741572,
+        "f1": 0.3011093502377179
+      },
+      {
+        "threshold": 0.575,
+        "rings": 49,
+        "confirmed": 147,
+        "fraud": 89,
+        "precision": 0.6054421768707483,
+        "recall": 0.2,
+        "f1": 0.3006756756756757
+      },
+      {
+        "threshold": 0.6,
+        "rings": 33,
+        "confirmed": 130,
+        "fraud": 89,
+        "precision": 0.6846153846153846,
+        "recall": 0.2,
+        "f1": 0.3095652173913044
+      },
+      {
+        "threshold": 0.625,
+        "rings": 24,
+        "confirmed": 108,
+        "fraud": 87,
+        "precision": 0.8055555555555556,
+        "recall": 0.19550561797752808,
+        "f1": 0.31464737793851716
+      },
+      {
+        "threshold": 0.65,
+        "rings": 16,
+        "confirmed": 104,
+        "fraud": 87,
+        "precision": 0.8365384615384616,
+        "recall": 0.19550561797752808,
+        "f1": 0.3169398907103824
+      },
+      {
+        "threshold": 0.675,
+        "rings": 8,
+        "confirmed": 102,
+        "fraud": 87,
+        "precision": 0.8529411764705882,
+        "recall": 0.19550561797752808,
+        "f1": 0.3180987202925045
+      },
+      {
+        "threshold": 0.7,
+        "rings": 3,
+        "confirmed": 101,
+        "fraud": 87,
+        "precision": 0.8613861386138614,
+        "recall": 0.19550561797752808,
+        "f1": 0.31868131868131866
+      },
+      {
+        "threshold": 0.725,
+        "rings": 3,
+        "confirmed": 101,
+        "fraud": 87,
+        "precision": 0.8613861386138614,
+        "recall": 0.19550561797752808,
+        "f1": 0.31868131868131866
+      },
+      {
+        "threshold": 0.75,
+        "rings": 2,
+        "confirmed": 55,
+        "fraud": 53,
+        "precision": 0.9636363636363636,
+        "recall": 0.11910112359550562,
+        "f1": 0.212
+      },
+      {
+        "threshold": 0.775,
+        "rings": 2,
+        "confirmed": 55,
+        "fraud": 53,
+        "precision": 0.9636363636363636,
+        "recall": 0.11910112359550562,
+        "f1": 0.212
+      },
+      {
+        "threshold": 0.8,
+        "rings": 0,
+        "confirmed": 0,
+        "fraud": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.825,
+        "rings": 0,
+        "confirmed": 0,
+        "fraud": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      {
+        "threshold": 0.85,
+        "rings": 0,
+        "confirmed": 0,
+        "fraud": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      }
+    ],
+    "test": {
+      "rings_alerted": 3,
+      "confirmed_transactions_covered": 2183,
+      "confirmed_fraud_captured": 2006,
+      "precision": 0.918918918918919,
+      "recall_of_test_fraud": 0.8963360142984808,
+      "test_base_rate": 0.4388235294117647,
+      "lift_over_base": 2.094051155713354
+    },
+    "top_rings": [
+      {
+        "cluster_id": "ring_052000_738",
+        "n_accounts": 58,
+        "n_transactions": 59,
+        "merchants": [
+          "T1529"
+        ],
+        "channels": [
+          "TP120"
+        ],
+        "risk_score": 0.7834,
+        "precision": 0.9636363636363636,
+        "reasons": [
+          "58 distinct accounts across 59 transactions (98% unique) - consistent with single-use accounts",
+          "98% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.03)"
+        ]
+      },
+      {
+        "cluster_id": "ring_056000_777",
+        "n_accounts": 58,
+        "n_transactions": 59,
+        "merchants": [
+          "T1529"
+        ],
+        "channels": [
+          "TP120"
+        ],
+        "risk_score": 0.7824,
+        "precision": 0.9811320754716981,
+        "reasons": [
+          "58 distinct accounts across 59 transactions (98% unique) - consistent with single-use accounts",
+          "98% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.03)"
+        ]
+      },
+      {
+        "cluster_id": "ring_012000_245",
+        "n_accounts": 28,
+        "n_transactions": 30,
+        "merchants": [
+          "T1529"
+        ],
+        "channels": [
+          "TP120"
+        ],
+        "risk_score": 0.7722,
+        "precision": 0.5357142857142857,
+        "reasons": [
+          "28 distinct accounts across 30 transactions (93% unique) - consistent with single-use accounts",
+          "93% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.03)"
+        ]
+      },
+      {
+        "cluster_id": "ring_064000_872",
+        "n_accounts": 2482,
+        "n_transactions": 2587,
+        "merchants": [
+          "T1822",
+          "T1015",
+          "T1111"
+        ],
+        "channels": [
+          "TP110",
+          "TP125",
+          "TP109"
+        ],
+        "risk_score": 0.7273,
+        "precision": 0.9505827505827505,
+        "reasons": [
+          "2,482 distinct accounts across 2,587 transactions (96% unique) - consistent with single-use accounts",
+          "97% of accounts transacted exactly once",
+          "2,587 transactions compressed into 7,952 time units"
+        ]
+      },
+      {
+        "cluster_id": "ring_060000_869",
+        "n_accounts": 10,
+        "n_transactions": 10,
+        "merchants": [
+          "T1086"
+        ],
+        "channels": [
+          "TP141"
+        ],
+        "risk_score": 0.7172,
+        "precision": null,
+        "reasons": [
+          "10 distinct accounts across 10 transactions (100% unique) - consistent with single-use accounts",
+          "100% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.38)"
+        ]
+      },
+      {
+        "cluster_id": "ring_068000_916",
+        "n_accounts": 2584,
+        "n_transactions": 2737,
+        "merchants": [
+          "T1822",
+          "T1015",
+          "T1861"
+        ],
+        "channels": [
+          "TP110",
+          "TP125",
+          "TP120"
+        ],
+        "risk_score": 0.7151,
+        "precision": 0.9206057824690225,
+        "reasons": [
+          "2,584 distinct accounts across 2,737 transactions (94% unique) - consistent with single-use accounts",
+          "96% of accounts transacted exactly once",
+          "2,737 transactions compressed into 7,821 time units"
+        ]
+      },
+      {
+        "cluster_id": "ring_012000_229",
+        "n_accounts": 8,
+        "n_transactions": 8,
+        "merchants": [
+          "T1074"
+        ],
+        "channels": [
+          "TP137"
+        ],
+        "risk_score": 0.7099,
+        "precision": null,
+        "reasons": [
+          "8 distinct accounts across 8 transactions (100% unique) - consistent with single-use accounts",
+          "100% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.36)"
+        ]
+      },
+      {
+        "cluster_id": "ring_028000_436",
+        "n_accounts": 9,
+        "n_transactions": 9,
+        "merchants": [
+          "T1022"
+        ],
+        "channels": [
+          "TP118"
+        ],
+        "risk_score": 0.7024,
+        "precision": null,
+        "reasons": [
+          "9 distinct accounts across 9 transactions (100% unique) - consistent with single-use accounts",
+          "100% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.46)"
+        ]
+      },
+      {
+        "cluster_id": "ring_008000_173",
+        "n_accounts": 10,
+        "n_transactions": 10,
+        "merchants": [
+          "T1414"
+        ],
+        "channels": [
+          "TP118"
+        ],
+        "risk_score": 0.7003,
+        "precision": null,
+        "reasons": [
+          "10 distinct accounts across 10 transactions (100% unique) - consistent with single-use accounts",
+          "100% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.63)"
+        ]
+      },
+      {
+        "cluster_id": "ring_000000_054",
+        "n_accounts": 11,
+        "n_transactions": 11,
+        "merchants": [
+          "T1157"
+        ],
+        "channels": [
+          "TP158"
+        ],
+        "risk_score": 0.6987,
+        "precision": 0.0,
+        "reasons": [
+          "11 distinct accounts across 11 transactions (100% unique) - consistent with single-use accounts",
+          "100% of accounts transacted exactly once",
+          "near-uniform amounts (coefficient of variation 0.48)"
+        ]
+      }
+    ]
+  }
+}

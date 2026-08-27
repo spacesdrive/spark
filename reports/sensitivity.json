@@ -1,0 +1,78 @@
+[
+  {
+    "label_lag_steps": 0,
+    "val_pr_auc": 0.5440902052127942,
+    "test_pr_auc": 0.8827112197384152,
+    "test_roc_auc": 0.9283443681933741,
+    "test_precision": 0.6080196399345336,
+    "test_recall": 0.9959785522788204,
+    "test_f1": 0.7550813008130081,
+    "test_expected_cost": 37777.778,
+    "test_net_benefit": 18000.602000000006,
+    "ring_precision": 0.918918918918919,
+    "ring_recall": 0.8963360142984808,
+    "fusion_weights": {
+      "tabular": 0.13049552921488067,
+      "graph": 0.7916859414077974,
+      "behavioral": 0.024300738309827645,
+      "velocity": 0.05351779106749441
+    }
+  },
+  {
+    "label_lag_steps": 500,
+    "val_pr_auc": 0.527515340380392,
+    "test_pr_auc": 0.8419276616515203,
+    "test_roc_auc": 0.9088543667008268,
+    "test_precision": 0.609983543609435,
+    "test_recall": 0.9937444146559428,
+    "test_f1": 0.7559483344663493,
+    "test_expected_cost": 37762.19,
+    "test_net_benefit": 18016.190000000002,
+    "ring_precision": 0.918918918918919,
+    "ring_recall": 0.8963360142984808,
+    "fusion_weights": {
+      "tabular": 0.2667849834657046,
+      "graph": 0.5609896161033958,
+      "behavioral": 0.000395769000188145,
+      "velocity": 0.17182963143071142
+    }
+  },
+  {
+    "label_lag_steps": 2000,
+    "val_pr_auc": 0.5213193065504781,
+    "test_pr_auc": 0.91512587436253,
+    "test_roc_auc": 0.9473287613916039,
+    "test_precision": 0.6299346776483954,
+    "test_recall": 0.9910634495084897,
+    "test_f1": 0.7702726167737454,
+    "test_expected_cost": 34468.07,
+    "test_net_benefit": 21310.310000000005,
+    "ring_precision": 0.918918918918919,
+    "ring_recall": 0.8963360142984808,
+    "fusion_weights": {
+      "tabular": 0.2667849834657046,
+      "graph": 0.5609896161033958,
+      "behavioral": 0.000395769000188145,
+      "velocity": 0.17182963143071142
+    }
+  },
+  {
+    "label_lag_steps": 6000,
+    "val_pr_auc": 0.5056432343198158,
+    "test_pr_auc": 0.8365299650986625,
+    "test_roc_auc": 0.8986390807655582,
+    "test_precision": 0.5907643312101911,
+    "test_recall": 0.9946380697050938,
+    "test_f1": 0.7412587412587412,
+    "test_expected_cost": 39654.26,
+    "test_net_benefit": 16124.120000000003,
+    "ring_precision": 0.918918918918919,
+    "ring_recall": 0.8963360142984808,
+    "fusion_weights": {
+      "tabular": 0.1293929098339871,
+      "graph": 0.7338619233423248,
+      "behavioral": 0.0016410633802261638,
+      "velocity": 0.13510410344346188
+    }
+  }
+]
