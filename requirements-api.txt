@@ -1,0 +1,21 @@
+# Spark - API and dashboard backend.
+#
+# Split from requirements.txt so a machine that only trains models does not
+# need the web stack, and the server does not need the training extras it will
+# never import. Versions are the ones the API was verified against.
+
+fastapi==0.141.1
+starlette==1.6.0
+uvicorn==0.52.4
+pydantic==2.11.4
+pydantic-settings==2.9.1
+python-multipart==0.0.20
+SQLAlchemy==2.0.28
+httpx==0.28.1
+
+# Supabase tokens are ES256 or RS256, which needs the cryptography backend.
+PyJWT==2.13.0
+cryptography==44.0.3
+
+# PostgreSQL driver. Unused when DATABASE_URL points at SQLite.
+psycopg[binary]==3.2.9
