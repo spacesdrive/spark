@@ -1,0 +1,387 @@
+@import "tailwindcss";
+
+/*
+  Spark design tokens.
+
+  Following Fluid Functionalism: motion is spring-shaped and always points at
+  something, interactive elements respond before the click, and nothing moves
+  for decoration. Anything that animates here is telling the user about state.
+*/
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Spring-shaped easing: fast out, slight overshoot, one settle. */
+  --ease-spring: linear(
+    0, 0.18 8%, 0.55 20%, 0.85 32%, 1.02 46%, 1.03 58%, 1 74%, 1
+  );
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/*
+  The palette is taken from the reference admin dashboards rather than chosen
+  by eye. Every value below was read out of the running page with the browser's
+  own computed styles, so the neutrals, the border weight and the muted text
+  all sit where they do in shadcn-admin and Preline.
+
+  Two things matter most and were both wrong before. The border was too dark,
+  which made every panel edge assert itself; and the dark surface was much
+  lighter than its background, which made cards float instead of sit. In the
+  references the dark card is barely distinguishable from the page and the
+  border is a translucent white, so depth comes from the border, not from a
+  step in lightness.
+*/
+:root {
+  color-scheme: light;
+
+  --bg: oklch(0.985 0.002 248);
+  --bg-subtle: oklch(0.968 0.007 248);
+  --surface: oklch(1 0 0);
+  --surface-hover: oklch(0.968 0.007 248);
+  --border: oklch(0.929 0.013 256);
+  --border-strong: oklch(0.87 0.014 256);
+
+  --text: oklch(0.129 0.042 265);
+  --text-muted: oklch(0.554 0.046 257);
+  --text-faint: oklch(0.553 0.042 257);
+
+  /* The references use a near-black primary, not a saturated brand colour, so
+     the one blue on screen is a link or a chart series rather than every
+     button. Spark keeps a blue accent for links and selection, and uses this
+     neutral for solid buttons. */
+  --accent: oklch(0.208 0.042 266);
+  --accent-hover: oklch(0.28 0.042 266);
+  --accent-soft: oklch(0.968 0.007 248);
+  --accent-text: oklch(0.984 0.003 248);
+
+  --link: oklch(0.52 0.19 260);
+
+  --low: oklch(0.505 0.12 155);
+  --low-soft: oklch(0.955 0.04 155);
+  --medium: oklch(0.52 0.12 62);
+  --medium-soft: oklch(0.96 0.05 82);
+  --high: oklch(0.515 0.22 27);
+  --high-soft: oklch(0.955 0.035 25);
+
+  /*
+    Chart series.
+
+    Darker than the dark-theme set on purpose. A chart line or fill is a
+    graphical object, which needs 3:1 against its background to be readable,
+    and the brighter series sat at around 2:1 on a near-white page. Same hues,
+    enough ink to see them.
+  */
+  --chart-1: oklch(0.488 0.243 264);
+  --chart-2: oklch(0.52 0.13 162);
+  --chart-3: oklch(0.52 0.14 70);
+  --chart-4: oklch(0.53 0.24 304);
+  --chart-5: oklch(0.54 0.22 16);
+
+  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.1),
+    0 2px 4px -2px oklch(0 0 0 / 0.1);
+
+  --radius: 0.625rem;      /* 10px, the reference base */
+  --radius-panel: 0.75rem; /* 12px, what a card actually uses */
+
+  --sidebar-width: 16rem;  /* 256px, measured on shadcn-admin */
+}
+
+.dark {
+  color-scheme: dark;
+
+  --bg: oklch(0.129 0.042 265);
+  --bg-subtle: oklch(0.208 0.042 266);
+  --surface: oklch(0.14 0.04 259);
+  --surface-hover: oklch(0.208 0.042 266);
+  --border: oklch(1 0 0 / 0.1);
+  --border-strong: oklch(1 0 0 / 0.18);
+
+  --text: oklch(0.984 0.003 248);
+  --text-muted: oklch(0.704 0.04 257);
+  --text-faint: oklch(0.58 0.035 257);
+
+  /* Inverted in dark, as in the references: a light solid button on a dark
+     page, with dark text on it. */
+  --accent: oklch(0.929 0.013 256);
+  --accent-hover: oklch(0.86 0.013 256);
+  --accent-soft: oklch(0.279 0.041 260);
+  --accent-text: oklch(0.208 0.042 266);
+
+  --link: oklch(0.72 0.15 258);
+
+  --low: oklch(0.7 0.15 155);
+  --low-soft: oklch(0.27 0.05 155);
+  --medium: oklch(0.769 0.188 70);
+  --medium-soft: oklch(0.28 0.06 72);
+  --high: oklch(0.704 0.191 22);
+  --high-soft: oklch(0.28 0.07 25);
+
+  /* Brighter here for the same reason, against a very dark page. */
+  --chart-1: oklch(0.66 0.19 264);
+  --chart-2: oklch(0.696 0.17 162);
+  --chart-3: oklch(0.769 0.188 70);
+  --chart-4: oklch(0.68 0.22 304);
+  --chart-5: oklch(0.68 0.2 16);
+
+  --shadow-sm: 0 1px 3px 0 oklch(0 0 0 / 0.3), 0 1px 2px -1px oklch(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px oklch(0 0 0 / 0.4),
+    0 2px 4px -2px oklch(0 0 0 / 0.4);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-low: var(--low);
+  --color-low-soft: var(--low-soft);
+  --color-medium: var(--medium);
+  --color-medium-soft: var(--medium-soft);
+  --color-high: var(--high);
+  --color-high-soft: var(--high-soft);
+  --color-link: var(--link);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-card: var(--radius-panel);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /*
+    Theme changes ease rather than snap.
+
+    Only colour properties transition, and only while the switch is happening:
+    a blanket transition on everything makes menus and drawers feel sluggish,
+    so the class is added for the length of the change and then removed. Anyone
+    who has asked for reduced motion gets the instant swap, which is the whole
+    point of the setting.
+  */
+  .theme-switching,
+  .theme-switching *,
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition:
+      background-color 220ms var(--ease-out-soft),
+      border-color 220ms var(--ease-out-soft),
+      color 220ms var(--ease-out-soft),
+      fill 220ms var(--ease-out-soft),
+      stroke 220ms var(--ease-out-soft) !important;
+    transition-delay: 0s !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-switching,
+    .theme-switching *,
+    .theme-switching *::before,
+    .theme-switching *::after {
+      transition: none !important;
+    }
+  }
+
+  /* A visible focus ring on every focusable thing, always. Keyboard users
+     must be able to see where they are. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    color: var(--text);
+  }
+
+  ::selection {
+    background: var(--accent-soft);
+    color: var(--text);
+  }
+
+  /* Scrollbars that do not shout. */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 6px;
+    border: 3px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+}
+
+@layer components {
+  /*
+    Interactive surfaces answer before the click. The lift is 1px and the
+    shadow change is small: enough to read as "this responds", not enough to
+    shift the layout.
+  */
+  .interactive {
+    transition:
+      background-color 160ms var(--ease-out-soft),
+      border-color 160ms var(--ease-out-soft),
+      box-shadow 220ms var(--ease-out-soft),
+      transform 220ms var(--ease-out-soft);
+  }
+  .interactive:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--border-strong);
+  }
+  .interactive:active {
+    transform: translateY(0.5px);
+    transition-duration: 60ms;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-lift {
+    transition:
+      box-shadow 260ms var(--ease-out-soft),
+      transform 260ms var(--ease-out-soft),
+      border-color 200ms var(--ease-out-soft);
+  }
+  .card-lift:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+  }
+
+  /* Content arriving. One short fade and rise, used once per view. */
+  .enter {
+    animation: enter 320ms var(--ease-out-soft) both;
+  }
+  .enter-delayed {
+    animation: enter 320ms var(--ease-out-soft) both;
+    animation-delay: 60ms;
+  }
+}
+
+/*
+  The tooltip cat.
+
+  It sleeps while a preview is merely open and wakes when the pointer moves
+  onto the card, which is the behaviour the source component describes. All of
+  it is CSS so nothing re-renders mid animation, and every part of it stops
+  under prefers-reduced-motion: a decorative cat is exactly the sort of motion
+  that setting exists to switch off.
+*/
+@keyframes sleep {
+  0%   { opacity: 1; transform: translateY(0) scale(1); }
+  50%  { opacity: 0.5; transform: translate(-5px, -18px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-30px) scale(1.5); }
+}
+
+.sleep-symbol span {
+  animation: sleep 4s ease-in-out infinite;
+}
+.sleep-symbol span:nth-child(2) { animation-delay: 1s; margin-left: -6px; }
+.sleep-symbol span:nth-child(3) { animation-delay: 2s; margin-left: -6px; }
+
+/* Asleep by default: closed eyes showing, open eyes hidden. */
+.thecat #eyesdown { visibility: hidden; }
+
+/* Awake once the pointer is on the card it sits above. */
+.cat-card:hover .thecat #lefteyelid,
+.cat-card:hover .thecat #righteyelid,
+.cat-card:hover .sleep-symbol {
+  visibility: hidden;
+}
+.cat-card:hover .thecat #eyesdown { visibility: visible; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sleep-symbol span { animation: none; }
+}
+
+@keyframes enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+@keyframes wave {
+  0%, 60%, 100% { transform: scaleY(0.35); }
+  30% { transform: scaleY(1); }
+}
+
+/* The hover documentation card. Short and slightly upward, so it reads as
+   attached to the thing it explains rather than as a new panel. */
+@keyframes spark-preview-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes spark-preview-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+@keyframes spark-fade-in { from { opacity: 0 } to { opacity: 1 } }
+
+@keyframes spark-slide-in {
+  from { transform: translateX(16px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes spark-slide-in { from { opacity: 0 } to { opacity: 1 } }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Anyone who has asked for less motion gets none of it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-lift:hover { transform: none; }
+}
