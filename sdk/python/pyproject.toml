@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spark-ai-sdk"
+version = "1.0.0"
+description = "Python client for the Spark risk API."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+# Deliberately no dependencies. The client uses only the standard library, so
+# adding it to an existing application cannot cause a version conflict.
+dependencies = []
+
+[tool.setuptools]
+packages = ["spark_sdk"]
