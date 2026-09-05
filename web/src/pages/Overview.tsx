@@ -211,7 +211,7 @@ export function Overview() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.55fr)]">
-        <Card>
+        <Card data-tour="flow">
           <CardHeader
             title="How a decision is made"
             action={
@@ -231,7 +231,7 @@ export function Overview() {
           </div>
         </Card>
 
-        <Card>
+        <Card data-tour="metrics">
           <CardHeader
             title="Model health"
             description="Measured on a split the model never saw."

@@ -274,4 +274,28 @@ describe("measured numbers come from one lookup", () => {
     // A request for /favicon.ico happens whether or not the page declares one.
     expect(existsSync(join(SRC, "..", "public", "favicon.ico"))).toBe(true);
   });
+
+  it("points every tour step at an anchor that exists", () => {
+    // Two steps named data-tour attributes no component ever carried, so they
+    // showed a card highlighting nothing. Nothing else catches it: the tour
+    // renders fine, it just points at empty space.
+    const tour = read(join(SRC, "components/common/Tour.tsx"));
+    const wanted = [...tour.matchAll(/data-tour='([a-z-]+)'/g)].map((m) => m[1]);
+    expect(wanted.length).toBeGreaterThan(0);
+
+    // Anchors are written literally on a component, or come from the
+    // navigation table via the sidebar.
+    const sources = [
+      ...componentFiles(),
+      ...pageFiles().map((f) => join(PAGES, f)),
+      join(SRC, "config/navigation.ts"),
+      join(SRC, "layouts/Sidebar.tsx"),
+      join(SRC, "layouts/Topbar.tsx"),
+    ].map((f) => read(f)).join("\n");
+
+    const missing = wanted.filter(
+      (id) => !sources.includes(`data-tour="${id}"`) && !sources.includes(`"${id}"`)
+    );
+    expect(missing).toEqual([]);
+  });
 });

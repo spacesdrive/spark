@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api, ApiError } from "@/api/client";
 import { useApp } from "@/stores/app";
 import { Icon } from "@/components/ui/icons";
@@ -42,6 +42,7 @@ export function Settings() {
     notify,
   } = useApp();
 
+  const navigate = useNavigate();
   const [orgName, setOrgName] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -97,12 +98,12 @@ export function Settings() {
               <Button
                 size="sm"
                 onClick={() => {
+                  // The tour points at the sidebar, the model selector and two
+                  // panels on the overview, so it can only run there. Clearing
+                  // the flag alone left the button doing nothing visible until
+                  // the user happened to navigate home themselves.
                   setTourSeen(false);
-                  notify({
-                    tone: "info",
-                    title: "Tour reset",
-                    body: "It will start again on the Overview page.",
-                  });
+                  navigate("/");
                 }}
                 icon={<Icon.Play size={14} />}
               >
