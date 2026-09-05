@@ -82,7 +82,10 @@ jobs:
 
           matches() { grep -qE "$1" changed.txt && echo true || echo false; }
 
-          backend=$(matches '^(api|ml|spark|tests)/|^sdk/python/|^requirements(-api)?\.txt$|^pyproject\.toml$')
+          # ops/ is here because the backend job compiles it and runs
+          # ops.checks.secret_scan. A change to the scan that was never run
+          # against a checkout is exactly the change most likely to be wrong.
+          backend=$(matches '^(api|ml|spark|tests|ops)/|^sdk/python/|^requirements(-api|-ops)?\.txt$|^pyproject\.toml$')
           web=$(matches '^web/|^sdk/node/')
           docs=$(matches '^docs/|^ops/site/|^requirements-ops\.txt$')
           ops=$(matches '^ops/')
