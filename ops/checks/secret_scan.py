@@ -100,7 +100,12 @@ def main() -> int:
 
     print("Secret files must be ignored by Git:")
     ignored_ok = True
-    for name in (".env", ".aws-keys", ".cloudflare-keys", ".supabase-keys"):
+    # The trailing slash matters. `git check-ignore` decides whether a bare
+    # name is a directory by looking at the disk, so the key directories, which
+    # exist on a maintainer's machine and never on a CI runner, matched the
+    # `.aws-keys/` pattern locally and reported NOT IGNORED in CI. Naming them
+    # as directories states the intent and gives the same answer everywhere.
+    for name in (".env", ".aws-keys/", ".cloudflare-keys/", ".supabase-keys/"):
         r = subprocess.run(["git", "check-ignore", "-q", name], cwd=ROOT)
         state = "ignored" if r.returncode == 0 else "NOT IGNORED"
         if r.returncode != 0:
