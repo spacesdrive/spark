@@ -10,7 +10,7 @@
  * has to be re-stated per page is a rule that will be forgotten.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -249,5 +249,29 @@ describe("measured numbers come from one lookup", () => {
     const hook = read(join(SRC, "hooks/useModelEvaluation.ts"));
     expect(hook).toContain("api.metrics.overview");
     expect(hook).toContain("held_out_pr_auc");
+  });
+
+  it("ships every icon the page asks for", () => {
+    // The dashboard declared /brand/spark-mark.png, which was never in
+    // web/public. A missing static file is answered by the single page
+    // fallback, so the browser received HTML where it expected an image and
+    // showed no icon at all. Nothing else catches that: the build succeeds,
+    // the types check, and the page renders.
+    const html = read(join(SRC, "..", "index.html"));
+    const hrefs = [...html.matchAll(/<link[^>]+rel="(?:icon|apple-touch-icon)"[^>]*>/g)]
+      .map((tag) => /href="([^"]+)"/.exec(tag[0])?.[1])
+      .filter((href): href is string => Boolean(href));
+
+    expect(hrefs.length).toBeGreaterThan(0);
+
+    const missing = hrefs.filter(
+      (href) => !existsSync(join(SRC, "..", "public", href.replace(/^\//, "")))
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it("serves the icon browsers request without being told to", () => {
+    // A request for /favicon.ico happens whether or not the page declares one.
+    expect(existsSync(join(SRC, "..", "public", "favicon.ico"))).toBe(true);
   });
 });
