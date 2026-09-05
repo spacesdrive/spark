@@ -1,4 +1,4 @@
-"""What the built-in model measured, for the dashboard."""
+"""What the selected model measured, for the dashboard."""
 
 from __future__ import annotations
 

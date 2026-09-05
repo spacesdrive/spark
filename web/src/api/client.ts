@@ -167,6 +167,11 @@ async function toApiError(response: Response): Promise<ApiError> {
   return new ApiError(response.status, body);
 }
 
+/** A model_id query string, or nothing at all. */
+function forModel(modelId?: string): string {
+  return modelId ? `?model_id=${encodeURIComponent(modelId)}` : "";
+}
+
 export const api = {
   health: () => request<Health>("/health"),
   config: () => request<PublicConfig>("/config"),
@@ -207,11 +212,19 @@ export const api = {
   },
 
   metrics: {
-    overview: () => request<MetricsOverview>("/metrics/overview"),
-    charts: () => request<MetricsCharts>("/metrics/charts"),
-    limitations: () =>
-      request<{ limitations: Limitation[] }>("/metrics/limitations"),
-    rings: () => request<RingReport>("/metrics/rings"),
+    // Every metrics call carries the selected model, so the numbers on screen
+    // belong to the model named above them. Omitting it reads the built-in
+    // model, which is what a guest sees.
+    overview: (modelId?: string) =>
+      request<MetricsOverview>(`/metrics/overview${forModel(modelId)}`),
+    charts: (modelId?: string) =>
+      request<MetricsCharts>(`/metrics/charts${forModel(modelId)}`),
+    limitations: (modelId?: string) =>
+      request<{ limitations: Limitation[] }>(
+        `/metrics/limitations${forModel(modelId)}`
+      ),
+    rings: (modelId?: string) =>
+      request<RingReport>(`/metrics/rings${forModel(modelId)}`),
   },
 
   datasets: {

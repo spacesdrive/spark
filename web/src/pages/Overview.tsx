@@ -103,8 +103,14 @@ const DECISION_STEPS = [
 
 export function Overview() {
   const { health, activeModel, activeOrg } = useApp();
-  const overview = useAsync(() => api.metrics.overview(), []);
-  const charts = useAsync(() => api.metrics.charts(), []);
+  // Every panel below belongs to whichever model is selected.
+  const modelId = activeModel?.id;
+  const overview = useAsync(
+    () => api.metrics.overview(modelId), [modelId]
+  );
+  const charts = useAsync(
+    () => api.metrics.charts(modelId), [modelId]
+  );
   const usage = useAsync(
     () => (activeOrg ? api.organizations.usage(activeOrg.id) : Promise.resolve(null)),
     [activeOrg?.id]

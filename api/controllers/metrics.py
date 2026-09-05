@@ -12,11 +12,17 @@ number describes validation data or the held-out test.
 
 from __future__ import annotations
 
+import json
 from typing import Optional
 
-from fastapi import HTTPException, status
+from fastapi import Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session as DbSession
 
+from api.database import get_db
+from api.dependencies import current_user_optional, model_or_404
+from api.models import User
 from api.services import engine as engine_state
+from api.services.training import model_dir
 
 
 #: Plain-language definitions, sent with the numbers so the dashboard never
@@ -43,7 +49,54 @@ GLOSSARY = {
 }
 
 
-def _evaluation_or_503() -> dict:
+def _is_builtin(model_id: str) -> bool:
+    return any(m["id"] == model_id for m in engine_state.builtin_models())
+
+
+def _custom_evaluation(model_id: str, db: DbSession, user: Optional[User]) -> Optional[dict]:
+    """
+    The evaluation a custom model wrote when it was trained.
+
+    Returns None when the id is not a custom model this caller owns, so the
+    caller falls back to the built-in report. Ownership is checked here rather
+    than by the route, because these endpoints are open to guests and only the
+    custom branch needs an account.
+    """
+    record = model_or_404(db, model_id, user)
+    if record.kind != "custom":
+        return None
+    path = model_dir(record.id) / "reports" / "evaluation.json"
+    if not path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "message": f"{record.name} has no stored evaluation, so there "
+                           "are no measured results to show for it.",
+                "reason": "evaluation_missing",
+            },
+        )
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _evaluation_or_503(
+    model_id: Optional[str] = None,
+    db: Optional[DbSession] = None,
+    user: Optional[User] = None,
+) -> dict:
+    """
+    The evaluation report for the selected model.
+
+    A built-in id, or no id at all, reads the pipeline's own report. A custom
+    id reads the report that model wrote during its own held-out evaluation.
+    """
+    # A built-in model is not a database row, so it must not be looked up as
+    # one. Doing that answered 404 for the model the dashboard selects by
+    # default.
+    if model_id and db is not None and not _is_builtin(model_id):
+        custom = _custom_evaluation(model_id, db, user)
+        if custom is not None:
+            return custom
+
     report = engine_state.read_evaluation()
     if report is None:
         raise HTTPException(
@@ -58,11 +111,19 @@ def _evaluation_or_503() -> dict:
     return report
 
 
-def overview() -> dict:
+def overview(
+    model_id: Optional[str] = Query(default=None),
+    db: DbSession = Depends(get_db),
+    user: Optional[User] = Depends(current_user_optional),
+) -> dict:
     """Headline numbers for the overview page, each labelled with its split."""
-    report = _evaluation_or_503()
-    latency = engine_state.read_latency()
-    meta = engine_state.read_metadata() or {}
+    report = _evaluation_or_503(model_id, db, user)
+    # Latency and the trained-at stamp are measured for the built-in model.
+    # A custom model has no latency run of its own, so rather than quote the
+    # built-in figures under its name, they are left out.
+    builtin = not model_id or _is_builtin(model_id)
+    latency = engine_state.read_latency() if builtin else None
+    meta = (engine_state.read_metadata() or {}) if builtin else {}
 
     balanced = next(
         (r for r in report.get("operating_points_test", []) if r["mode"] == "balanced"),
@@ -141,15 +202,19 @@ def overview() -> dict:
     }
 
 
-def charts() -> dict:
+def charts(
+    model_id: Optional[str] = Query(default=None),
+    db: DbSession = Depends(get_db),
+    user: Optional[User] = Depends(current_user_optional),
+) -> dict:
     """
     Chart-shaped views of the same measured numbers.
 
     The radar chart is built only from things that were actually measured. It
     has no axis for anything the project has not put a number on.
     """
-    report = _evaluation_or_503()
-    latency = engine_state.read_latency()
+    report = _evaluation_or_503(model_id, db, user)
+    latency = engine_state.read_latency() if (not model_id or _is_builtin(model_id)) else None
 
     balanced = next(
         (r for r in report.get("operating_points_test", []) if r["mode"] == "balanced"),
@@ -216,14 +281,18 @@ def charts() -> dict:
     }
 
 
-def limitations() -> dict:
+def limitations(
+    model_id: Optional[str] = Query(default=None),
+    db: DbSession = Depends(get_db),
+    user: Optional[User] = Depends(current_user_optional),
+) -> dict:
     """
     What the measured numbers do not cover.
 
     These are load-bearing caveats, not disclaimers. They come from the
     evaluation report, so they cannot drift away from the results.
     """
-    report = _evaluation_or_503()
+    report = _evaluation_or_503(model_id, db, user)
     drift = report.get("score_drift", {})
     slices = {s["slice"]: s for s in report.get("stress_slices_test", [])}
     hp = next(
@@ -291,9 +360,13 @@ def limitations() -> dict:
     return {"limitations": items}
 
 
-def rings() -> dict:
+def rings(
+    model_id: Optional[str] = Query(default=None),
+    db: DbSession = Depends(get_db),
+    user: Optional[User] = Depends(current_user_optional),
+) -> dict:
     """Detected abuse rings and how well they scored on the held-out test."""
-    report = _evaluation_or_503()
+    report = _evaluation_or_503(model_id, db, user)
     ring_block = report.get("rings", {})
     return {
         "n_candidate_rings": ring_block.get("n_candidate_rings"),

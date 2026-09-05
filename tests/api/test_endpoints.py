@@ -90,6 +90,27 @@ def test_metrics_overview_is_labelled_by_split(client):
         assert card["help"], "every metric must be explained"
 
 
+def test_metrics_answer_for_the_selected_model(client):
+    """
+    Every metrics endpoint takes the model the dashboard has selected.
+
+    Without it the pages read the built-in evaluation whatever was selected,
+    so a custom model's name sat above the built-in model's numbers. The
+    built-in id is not a database row, so it must resolve without a lookup;
+    getting that wrong made the default selection answer 404.
+    """
+    for path in ("overview", "charts", "limitations", "rings"):
+        plain = client.get(f"/api/metrics/{path}")
+        builtin = client.get(f"/api/metrics/{path}?model_id=hybrid-v1")
+        assert plain.status_code == builtin.status_code == 200, path
+        assert plain.json() == builtin.json(), (
+            f"{path} must read the built-in report for the built-in id"
+        )
+
+    unknown = client.get("/api/metrics/overview?model_id=mdl_not_a_real_model")
+    assert unknown.status_code == 404
+
+
 def test_limitations_are_reported(client):
     r = client.get("/api/metrics/limitations")
     if r.status_code == 503:

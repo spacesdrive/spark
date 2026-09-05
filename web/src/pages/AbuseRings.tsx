@@ -15,6 +15,7 @@
 import { useMemo, useState } from "react";
 import { api } from "@/api/client";
 import { useAsync } from "@/hooks/useAsync";
+import { useApp } from "@/stores/app";
 import { money, percent, ratio } from "@/lib/format";
 import { DOCS } from "@/config/docs";
 import { Icon } from "@/components/ui/icons";
@@ -85,7 +86,11 @@ const SIGNALS = [
 type RiskFilter = "all" | "high" | "medium";
 
 export function AbuseRings() {
-  const rings = useAsync(() => api.metrics.rings(), []);
+  const { activeModel } = useApp();
+  const modelId = activeModel?.id;
+  const rings = useAsync(
+    () => api.metrics.rings(modelId), [modelId]
+  );
   const [selected, setSelected] = useState<RingSummary | null>(null);
   const [risk, setRisk] = useState<RiskFilter>("all");
   const [channel, setChannel] = useState("all");

@@ -55,10 +55,17 @@ const EXPLANATIONS: Record<string, { href: string; text: string }> = {
 
 export function RiskAnalysis() {
   const { activeModel } = useApp();
-  const overview = useAsync(() => api.metrics.overview(), []);
-  const charts = useAsync(() => api.metrics.charts(), []);
+  const modelId = activeModel?.id;
+  const overview = useAsync(
+    () => api.metrics.overview(modelId), [modelId]
+  );
+  const charts = useAsync(
+    () => api.metrics.charts(modelId), [modelId]
+  );
   const thresholds = useAsync(() => api.risk.thresholds(), []);
-  const limitations = useAsync(() => api.metrics.limitations(), []);
+  const limitations = useAsync(
+    () => api.metrics.limitations(modelId), [modelId]
+  );
 
   const [split, setSplit] = useState("test");
   const [setting, setSetting] = useState("all");
