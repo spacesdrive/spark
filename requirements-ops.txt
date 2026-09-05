@@ -1,0 +1,8 @@
+# Spark - operational scripts.
+#
+# Only what ops/ imports. The API and the training stack are separate files so
+# a machine that just needs to build the documentation site does not install
+# either of them.
+
+# ops/site/build_docs.py renders docs/ into the static documentation site.
+markdown-it-py==4.2.0
