@@ -298,4 +298,29 @@ describe("measured numbers come from one lookup", () => {
     );
     expect(missing).toEqual([]);
   });
+
+  it("reads metrics for the model that is selected", () => {
+    // These pages fetched the built-in evaluation once, with no dependency on
+    // the selection, so choosing another model changed the name above the
+    // numbers and nothing under it. Each metrics call must carry the model,
+    // and must list it as a dependency so the panel reloads on a change.
+    const pages = {
+      "Overview.tsx": ["overview", "charts"],
+      "RiskAnalysis.tsx": ["overview", "charts", "limitations"],
+      "AbuseRings.tsx": ["rings"],
+    };
+    const offenders: string[] = [];
+    for (const [file, calls] of Object.entries(pages)) {
+      const source = read(join(PAGES, file));
+      for (const call of calls) {
+        if (!source.includes(`api.metrics.${call}(modelId)`)) {
+          offenders.push(`${file}: ${call} does not pass the model`);
+        }
+      }
+      if (!source.includes("[modelId]")) {
+        offenders.push(`${file}: does not reload when the model changes`);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
 });
