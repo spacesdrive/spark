@@ -76,7 +76,9 @@ def list_models(
             .where(ModelRecord.deleted_at.is_(None))
             .order_by(ModelRecord.created_at.desc())
         ).scalars().all()
-        models.extend(_custom_to_dict(m) for m in rows)
+        org = db.get(Organization, organization_id)
+        production_id = org.production_model_id if org else None
+        models.extend(_custom_to_dict(m, production_id) for m in rows)
 
     return {
         "models": models,
@@ -105,7 +107,8 @@ def get_model(
         }
 
     record = model_or_404(db, model_id, user)
-    return _custom_to_dict(record)
+    org = db.get(Organization, record.organization_id)
+    return _custom_to_dict(record, org.production_model_id if org else None)
 
 
 def activate_model(
@@ -148,7 +151,9 @@ def activate_model(
     for m in others:
         m.is_active = m.id == record.id
     db.commit()
-    return {"activated": True, "model": _custom_to_dict(record)}
+    org = db.get(Organization, record.organization_id)
+    return {"activated": True, "model": _custom_to_dict(
+        record, org.production_model_id if org else None)}
 
 
 def deactivate_model(
@@ -176,7 +181,9 @@ def deactivate_model(
     if org is not None and org.production_model_id == record.id:
         org.production_model_id = None
     db.commit()
-    return {"activated": False, "model": _custom_to_dict(record)}
+    org = db.get(Organization, record.organization_id)
+    return {"activated": False, "model": _custom_to_dict(
+        record, org.production_model_id if org else None)}
 
 
 # The production registry
@@ -280,7 +287,9 @@ def reject_model(
     record.status = "rejected"
     record.is_active = False
     db.commit()
-    return {"rejected": True, "model": _custom_to_dict(record)}
+    org = db.get(Organization, record.organization_id)
+    return {"rejected": True, "model": _custom_to_dict(
+        record, org.production_model_id if org else None)}
 
 
 def rollback_production(

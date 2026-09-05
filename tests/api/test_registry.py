@@ -115,6 +115,34 @@ def test_promoting_sets_production_and_records_the_previous_model(client, org):
         assert record.previous_production_model_id == first
 
 
+def test_the_listing_says_which_model_is_in_production(client, org):
+    """
+    The dashboard decides what to offer from the list, not from the database.
+
+    Every existing test here read the Organization row directly, so a listing
+    that reported is_production false for a model that really was in
+    production passed all of them. What the user saw was a drawer still
+    offering "Approve for production" after approving, and a page still
+    saying nothing was in production while a live key scored against it.
+    """
+    model_id = _fake_trained_model(org["id"])
+
+    listed = client.get(f"/api/models?organization_id={org['id']}",
+                        headers=org["headers"]).json()["models"]
+    mine = next(m for m in listed if m["id"] == model_id)
+    assert mine["is_production"] is False
+
+    client.post(f"/api/models/{model_id}/promote", headers=org["headers"])
+
+    listed = client.get(f"/api/models?organization_id={org['id']}",
+                        headers=org["headers"]).json()["models"]
+    mine = next(m for m in listed if m["id"] == model_id)
+    assert mine["is_production"] is True, "the listing must report the promotion"
+
+    single = client.get(f"/api/models/{model_id}", headers=org["headers"]).json()
+    assert single["is_production"] is True, "so must reading the model on its own"
+
+
 def test_rollback_restores_the_previous_model(client, org):
     first = _fake_trained_model(org["id"])
     second = _fake_trained_model(org["id"])

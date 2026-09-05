@@ -340,7 +340,10 @@ function CustomModels({ organizationId }: { organizationId: string }) {
   const { notify } = useApp();
   // The drawer lives here rather than on the page, so its footer can reach the
   // same reload and busy state the actions need.
-  const [detail, setDetail] = useState<ModelInfo | null>(null);
+  // Only the id is held. The drawer reads the model out of the refreshed list,
+  // so an approval is reflected the moment the list reloads instead of the
+  // drawer still showing the snapshot taken when it was opened.
+  const [detailId, setDetailId] = useState<string | null>(null);
   const models = useAsync(
     () => api.models.list(organizationId),
     [organizationId]
@@ -349,6 +352,7 @@ function CustomModels({ organizationId }: { organizationId: string }) {
 
   const mine = (models.data?.models ?? []).filter((m) => m.kind === "custom");
   const production = mine.find((m) => m.is_production) ?? null;
+  const detail = mine.find((m) => m.id === detailId) ?? null;
 
   async function run(
     label: string,
@@ -404,7 +408,7 @@ function CustomModels({ organizationId }: { organizationId: string }) {
             .filter(Boolean)
             .join("  ·  "),
           icon: <Icon.Model size={16} />,
-          onOpen: () => setDetail(m),
+          onOpen: () => setDetailId(m.id),
         }))}
       />
 
@@ -439,7 +443,7 @@ function CustomModels({ organizationId }: { organizationId: string }) {
 
       <ModelDrawer
         model={detail}
-        onClose={() => setDetail(null)}
+        onClose={() => setDetailId(null)}
         footer={
           detail && !detail.is_production && detail.status === "trained" ? (
             <ActionGroup>
@@ -449,7 +453,7 @@ function CustomModels({ organizationId }: { organizationId: string }) {
                 onClick={() =>
                   void run("Approved for production", detail.id, () =>
                     api.models.promote(detail.id)
-                  ).then(() => setDetail(null))
+                  ).then(() => setDetailId(null))
                 }
               >
                 Approve for production
@@ -460,7 +464,7 @@ function CustomModels({ organizationId }: { organizationId: string }) {
                 onClick={() =>
                   void run("Rejected", detail.id, () =>
                     api.models.reject(detail.id)
-                  ).then(() => setDetail(null))
+                  ).then(() => setDetailId(null))
                 }
               >
                 Reject
