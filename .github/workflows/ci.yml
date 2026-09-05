@@ -10,6 +10,11 @@ on:
   push:
     branches-ignore:
       - main
+  # Run every check on demand, against any branch. A dispatch has nothing to
+  # compare against, so the change detection reports every area as changed and
+  # the whole suite runs. Useful for re-checking after a dependency or a runner
+  # image moves underneath a branch that has not been touched.
+  workflow_dispatch:
 
 # A new push supersedes the run already in flight for the same branch.
 concurrency:
