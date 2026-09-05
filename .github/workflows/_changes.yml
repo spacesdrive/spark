@@ -1,0 +1,105 @@
+# Which parts of the repository a push or pull request actually touched.
+#
+# Reused by both the CI and the deploy workflow so the two can never disagree
+# about what is affected. Everything is compared with git rather than a
+# third-party action, which keeps the set of actions this repository trusts to
+# the ones published by GitHub and AWS.
+
+name: changes
+
+on:
+  workflow_call:
+    outputs:
+      backend:
+        description: The API, the ML pipeline, the CLI, the Python SDK or the tests
+        value: ${{ jobs.detect.outputs.backend }}
+      web:
+        description: The dashboard or the Node SDK
+        value: ${{ jobs.detect.outputs.web }}
+      docs:
+        description: The documentation source or the site builder
+        value: ${{ jobs.detect.outputs.docs }}
+      deployable:
+        description: Anything that changes what runs on the origin
+        value: ${{ jobs.detect.outputs.deployable }}
+
+permissions:
+  contents: read
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      web: ${{ steps.filter.outputs.web }}
+      docs: ${{ steps.filter.outputs.docs }}
+      deployable: ${{ steps.filter.outputs.deployable }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Deep enough to diff against the base of a pull request without
+          # fetching the entire history on every run.
+          fetch-depth: 0
+
+      - name: Work out the range to compare
+        id: range
+        env:
+          # Event data is read through the environment, never interpolated into
+          # the script, so a branch named `; rm -rf /` is just a string.
+          EVENT: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "pull_request" ]; then
+            echo "base=$BASE_SHA" >> "$GITHUB_OUTPUT"
+          elif [ -n "${BEFORE_SHA:-}" ] && [ "$BEFORE_SHA" != "0000000000000000000000000000000000000000" ] \
+               && git cat-file -e "$BEFORE_SHA^{commit}" 2>/dev/null; then
+            echo "base=$BEFORE_SHA" >> "$GITHUB_OUTPUT"
+          else
+            # First push to a branch, or a force push that removed the old tip.
+            # Nothing to compare against, so treat everything as changed.
+            echo "base=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Classify the changed paths
+        id: filter
+        env:
+          BASE: ${{ steps.range.outputs.base }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BASE" ]; then
+            echo "no comparison point, treating every area as changed"
+            for area in backend web docs deployable; do
+              echo "$area=true" >> "$GITHUB_OUTPUT"
+            done
+            exit 0
+          fi
+
+          git diff --name-only "$BASE" "$GITHUB_SHA" > changed.txt
+          echo "changed files:"
+          sed 's/^/  /' changed.txt
+
+          matches() { grep -qE "$1" changed.txt && echo true || echo false; }
+
+          backend=$(matches '^(api|ml|spark|tests)/|^sdk/python/|^requirements(-api)?\.txt$|^pyproject\.toml$')
+          web=$(matches '^web/|^sdk/node/')
+          docs=$(matches '^docs/|^ops/site/|^requirements-ops\.txt$')
+          ops=$(matches '^ops/')
+
+          # A change to how the host is built or released has to go out even
+          # when no application code moved.
+          if [ "$backend" = true ] || [ "$web" = true ] || [ "$docs" = true ] || [ "$ops" = true ]; then
+            deployable=true
+          else
+            deployable=false
+          fi
+
+          {
+            echo "backend=$backend"
+            echo "web=$web"
+            echo "docs=$docs"
+            echo "deployable=$deployable"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "backend=$backend web=$web docs=$docs deployable=$deployable"
