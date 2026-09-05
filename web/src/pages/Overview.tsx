@@ -36,13 +36,23 @@ import { HoverPreview } from "@/components/ui/HoverPreview";
 import { DecisionChart } from "@/components/charts/Charts";
 import { DOCS } from "@/config/docs";
 
-/** The four numbers worth putting on a front page. The rest are one click on. */
+//: The numbers worth putting on a front page, in order of preference. The
+//: rest are one click on.
+//:
+//: Longer than the four that are shown, because latency is measured for the
+//: built-in model and not for a model you trained. Taking the first four that
+//: were actually measured keeps the grid full for either, without a card
+//: standing empty and without inventing a number to fill it.
 const HEADLINE = [
   { key: "precision", label: "Precision", doc: DOCS.precision },
   { key: "recall", label: "Recall", doc: DOCS.recall },
   { key: "pr_auc", label: "PR-AUC", doc: DOCS.prAuc },
   { key: "p95_latency", label: "p95 latency", doc: DOCS.latency },
+  { key: "roc_auc", label: "ROC-AUC", doc: DOCS.rocAuc },
 ];
+
+/** How many of them the grid shows. */
+const HEADLINE_COUNT = 4;
 
 const ACTIONS = [
   {
@@ -120,7 +130,9 @@ export function Overview() {
   const headline = HEADLINE.map((h) => ({
     ...h,
     card: cards.find((c) => c.key === h.key),
-  })).filter((h) => h.card);
+  }))
+    .filter((h) => h.card)
+    .slice(0, HEADLINE_COUNT);
 
   // An organization with traffic sees its own decisions. Without traffic there
   // is nothing to plot, and the held-out test window is shown instead, said so.
