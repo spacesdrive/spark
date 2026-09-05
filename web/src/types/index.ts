@@ -476,6 +476,10 @@ export interface ApiKeyCreated extends ApiKey {
 
 export interface UsageReport {
   total_requests: number;
+  /** Requests recorded before the scoring model was tracked. */
+  unattributed_requests?: number;
+  /** The model these counts were narrowed to, when one was asked for. */
+  model_id?: string | null;
   window_requests: number;
   decisions: Record<Decision, number>;
   high_risk: number;

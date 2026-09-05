@@ -31,6 +31,9 @@ class UsageEvent(Base):
     mode: Mapped[str] = mapped_column(String(10), default="test")
     endpoint: Mapped[str] = mapped_column(String(120))
     status_code: Mapped[int] = mapped_column(Integer)
+    #: Which model produced the decision. Null for requests recorded before
+    #: this was tracked, so they are counted in totals but belong to no model.
+    model_id: Mapped[Optional[str]] = mapped_column(String(64), index=True)
     decision: Mapped[Optional[str]] = mapped_column(String(20))
     risk_score: Mapped[Optional[float]] = mapped_column(Float)
     amount: Mapped[Optional[float]] = mapped_column(Float)

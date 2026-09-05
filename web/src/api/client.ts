@@ -317,10 +317,17 @@ export const api = {
       request<ApiKey>(`/api-keys/${encodeURIComponent(keyId)}/revoke`, {
         method: "POST",
       }),
-    usage: (id: string, mode?: string) =>
-      request<UsageReport>(
-        `/organizations/${encodeURIComponent(id)}/usage${mode ? `?mode=${mode}` : ""}`
-      ),
+    usage: (id: string, mode?: string, modelId?: string) => {
+      const query = new URLSearchParams();
+      if (mode) query.set("mode", mode);
+      // Traffic is reported for the selected model, so a page showing one
+      // model does not put another model's requests beside its results.
+      if (modelId) query.set("model_id", modelId);
+      const suffix = query.toString() ? `?${query}` : "";
+      return request<UsageReport>(
+        `/organizations/${encodeURIComponent(id)}/usage${suffix}`
+      );
+    },
     rollback: (id: string) =>
       request<RollbackResult>(
         `/organizations/${encodeURIComponent(id)}/rollback`,

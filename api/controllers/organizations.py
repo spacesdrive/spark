@@ -275,6 +275,7 @@ def revoke_api_key(
 def usage(
     organization_id: str,
     mode: Optional[str] = None,
+    model_id: Optional[str] = None,
     db: DbSession = Depends(get_db),
     user: User = Depends(current_user),
 ) -> dict:
@@ -283,12 +284,19 @@ def usage(
 
     Counts come from recorded requests. An organization that has sent nothing
     sees zeros and a prompt, not an invented demo number.
+
+    Passing ``model_id`` narrows this to the requests that model actually
+    scored, so a page showing one model does not report another model's
+    traffic beside its results. Requests recorded before the model was tracked
+    match no model and are reported separately as unattributed.
     """
     membership_or_403(db, organization_id, user)
 
     stmt = select(UsageEvent).where(UsageEvent.organization_id == organization_id)
     if mode:
         stmt = stmt.where(UsageEvent.mode == mode)
+    if model_id:
+        stmt = stmt.where(UsageEvent.model_id == model_id)
     events = db.execute(stmt.order_by(UsageEvent.created_at.desc()).limit(500)).scalars().all()
 
     counts = {"APPROVE": 0, "REVIEW": 0, "BLOCK": 0}
@@ -302,14 +310,25 @@ def usage(
         if e.decision == "BLOCK" and e.amount:
             prevented += float(e.amount)
 
-    total = db.execute(
-        select(func.count()).select_from(UsageEvent).where(
-            UsageEvent.organization_id == organization_id
-        )
+    total_stmt = select(func.count()).select_from(UsageEvent).where(
+        UsageEvent.organization_id == organization_id
+    )
+    if model_id:
+        total_stmt = total_stmt.where(UsageEvent.model_id == model_id)
+    total = db.execute(total_stmt).scalar_one()
+
+    # Requests from before the model was recorded. Reported so the page can say
+    # why a total it shows elsewhere is larger than the one shown here.
+    unattributed = db.execute(
+        select(func.count()).select_from(UsageEvent)
+        .where(UsageEvent.organization_id == organization_id)
+        .where(UsageEvent.model_id.is_(None))
     ).scalar_one()
 
     return {
         "total_requests": int(total),
+        "unattributed_requests": int(unattributed),
+        "model_id": model_id,
         "window_requests": len(events),
         "decisions": counts,
         "high_risk": counts["BLOCK"] + counts["REVIEW"],

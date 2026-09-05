@@ -321,6 +321,51 @@ def test_api_key_authenticates_the_v1_endpoint(client):
     assert r.json()["decision"] in ("APPROVE", "REVIEW", "BLOCK")
 
 
+def test_usage_can_be_read_for_one_model(client):
+    """
+    The decisions chart could not follow the model selector, because the
+    recorded traffic never said which model scored each request. Every request
+    now carries it, and usage can be narrowed to one model, so a page showing
+    one model does not report another model's traffic beside its results.
+    """
+    user = make_user("usage-by-model@example.com")
+    headers = sign_in(client, user)
+    org = client.post("/api/organizations", json={"name": "Usage Co"},
+                      headers=headers).json()
+    key = client.post(
+        f"/api/organizations/{org['id']}/api-keys",
+        json={"name": "server", "mode": "test"},
+        headers=headers,
+    ).json()
+
+    scored = client.post(
+        "/api/v1/risk/score",
+        json={"amount": 12.0, "customer_id": "c9", "merchant_id": "m9"},
+        headers={"Authorization": f"Bearer {key['secret']}"},
+    )
+    if scored.status_code == 503:
+        pytest.skip("no trained model available")
+    assert scored.status_code == 200
+    used = scored.json()["model_id"]
+
+    everything = client.get(f"/api/organizations/{org['id']}/usage",
+                            headers=headers).json()
+    assert everything["total_requests"] == 1
+
+    same = client.get(
+        f"/api/organizations/{org['id']}/usage?model_id={used}", headers=headers
+    ).json()
+    assert same["total_requests"] == 1, "the request belongs to the model that scored it"
+    assert same["model_id"] == used
+
+    other = client.get(
+        f"/api/organizations/{org['id']}/usage?model_id=some-other-model",
+        headers=headers,
+    ).json()
+    assert other["total_requests"] == 0, "another model must not claim this traffic"
+    assert sum(other["decisions"].values()) == 0
+
+
 def test_revoked_key_stops_working(client):
     user = make_user("revoke@example.com")
     headers = sign_in(client, user)

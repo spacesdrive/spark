@@ -122,8 +122,11 @@ export function Overview() {
     () => api.metrics.charts(modelId), [modelId]
   );
   const usage = useAsync(
-    () => (activeOrg ? api.organizations.usage(activeOrg.id) : Promise.resolve(null)),
-    [activeOrg?.id]
+    () =>
+      activeOrg
+        ? api.organizations.usage(activeOrg.id, undefined, modelId)
+        : Promise.resolve(null),
+    [activeOrg?.id, modelId]
   );
 
   const cards = overview.data?.cards ?? [];
@@ -144,7 +147,7 @@ export function Overview() {
       }))
     : (charts.data?.decision_distribution ?? []);
   const decisionSource = live
-    ? "your API requests"
+    ? `your API requests scored by ${activeModel?.name ?? "this model"}`
     : "held-out test, balanced setting";
 
   const modelReady = health?.model.available !== false;

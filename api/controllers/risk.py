@@ -185,6 +185,7 @@ def score_transaction_v1(
             mode=caller.mode,
             endpoint="/api/v1/risk/score",
             status_code=200,
+            model_id=model_id,
             decision=result.decision,
             risk_score=result.risk_score,
             amount=result.amount,
