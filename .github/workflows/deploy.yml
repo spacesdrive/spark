@@ -44,14 +44,82 @@ jobs:
     if: needs.changes.outputs.docs == 'true'
     uses: ./.github/workflows/_checks-docs.yml
 
+  preflight:
+    needs: changes
+    if: needs.changes.outputs.deployable == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
+    steps:
+      - name: Is deployment configured
+        id: check
+        env:
+          # Only whether each value is empty is ever read, never the value, so
+          # nothing secret reaches an output or the log.
+          ROLE_ARN: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          SSH_KEY: ${{ secrets.SPARK_SSH_KEY }}
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          EC2_NAME_TAG: ${{ vars.SPARK_EC2_NAME_TAG }}
+          SECURITY_GROUP_NAME: ${{ vars.SPARK_SECURITY_GROUP_NAME }}
+          PUBLIC_HOST: ${{ vars.SPARK_PUBLIC_HOST }}
+          DOCS_HOST: ${{ vars.SPARK_DOCS_HOST }}
+          CLOUDFLARE_ZONE_NAME: ${{ vars.CLOUDFLARE_ZONE_NAME }}
+        run: |
+          set -euo pipefail
+          missing=()
+
+          # Maps the local name to the name that has to be created under
+          # Settings, so the report names what the reader must add rather than
+          # an alias that only exists inside this step.
+          check() {
+            [ -n "${!1:-}" ] || missing+=("$2 $3")
+          }
+          check ROLE_ARN             secret   AWS_DEPLOY_ROLE_ARN
+          check SSH_KEY              secret   SPARK_SSH_KEY
+          check CF_TOKEN             secret   CLOUDFLARE_API_TOKEN
+          check AWS_REGION           variable AWS_REGION
+          check EC2_NAME_TAG         variable SPARK_EC2_NAME_TAG
+          check SECURITY_GROUP_NAME  variable SPARK_SECURITY_GROUP_NAME
+          check PUBLIC_HOST          variable SPARK_PUBLIC_HOST
+          check DOCS_HOST            variable SPARK_DOCS_HOST
+          check CLOUDFLARE_ZONE_NAME variable CLOUDFLARE_ZONE_NAME
+
+          if [ ${#missing[@]} -eq 0 ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "deployment is configured"
+            exit 0
+          fi
+
+          echo "configured=false" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Deployment skipped"
+            echo
+            echo "The checks passed, but this repository has no deployment"
+            echo "configuration yet, so nothing was released. Add the following"
+            echo "under Settings, then push again or re-run this workflow."
+            echo
+            for item in "${missing[@]}"; do
+              echo "* \`$item\`"
+            done
+            echo
+            echo "The names map to the real values in"
+            echo "[docs/operations/ci.md](../blob/main/docs/operations/ci.md)."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "not configured, skipping the release:"
+          for item in "${missing[@]}"; do
+            echo "  $item"
+          done
+
   release:
-    needs: [changes, backend, web, docs]
+    needs: [changes, preflight, backend, web, docs]
     # `always()` lets the job run when a check was skipped because its area did
     # not change. The explicit tests below are what refuse a failed one, so a
     # broken build can never reach production.
     if: >-
       always()
       && needs.changes.outputs.deployable == 'true'
+      && needs.preflight.outputs.configured == 'true'
       && needs.backend.result != 'failure'
       && needs.web.result != 'failure'
       && needs.docs.result != 'failure'
