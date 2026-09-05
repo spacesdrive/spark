@@ -1,0 +1,31 @@
+# Keep line endings deterministic regardless of the machine that checked out.
+#
+# The shell scripts under ops/ run on Linux. A Windows checkout gave them CRLF
+# endings, which the tar carried to the server, and bash refused the first line
+# with "set: pipefail: invalid option name". Anything executed remotely, or
+# parsed by a tool that cares, is pinned to LF here.
+
+* text=auto
+
+*.sh            text eol=lf
+*.py            text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+*.json          text eol=lf
+*.ts            text eol=lf
+*.tsx           text eol=lf
+*.css           text eol=lf
+*.html          text eol=lf
+*.md            text eol=lf
+*.toml          text eol=lf
+*.txt           text eol=lf
+.env.example    text eol=lf
+
+*.png           binary
+*.jpg           binary
+*.ico           binary
+*.npy           binary
+*.joblib        binary
+*.pt            binary
+*.zip           binary
+*.csv           -text
