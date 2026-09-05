@@ -102,6 +102,19 @@ server {
     root /opt/spark/web/dist;
     index index.html;
 
+    # Named by content hash, so a new build is a new name and these can never
+    # go stale.
+    location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # The shell names the current bundle, so it must be revalidated every time.
+    # Without this a browser guessed, and kept an old build for hours.
+    location = /index.html {
+        add_header Cache-Control "no-cache" always;
+    }
+
     location /api/ {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
