@@ -1,0 +1,61 @@
+# Validation for pull requests and for any branch that is not main.
+#
+# Nothing here deploys. Only what changed is checked, so a documentation edit
+# does not spend twenty minutes installing torch.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+
+# A new push supersedes the run already in flight for the same branch.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    uses: ./.github/workflows/_changes.yml
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/_checks-backend.yml
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    uses: ./.github/workflows/_checks-web.yml
+
+  docs:
+    needs: changes
+    if: needs.changes.outputs.docs == 'true'
+    uses: ./.github/workflows/_checks-docs.yml
+
+  # One required status check to protect the branch with, which passes when
+  # every job that ran succeeded and fails if any of them did not. Jobs that
+  # were skipped because nothing in their area changed do not count as failures.
+  verdict:
+    needs: [backend, web, docs]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          set -euo pipefail
+          echo "job results: $RESULTS"
+          for result in $RESULTS; do
+            case "$result" in
+              success|skipped) ;;
+              *) echo "a required check did not pass"; exit 1 ;;
+            esac
+          done
+          echo "everything that ran passed"
